@@ -181,6 +181,11 @@ void RTABMapVIO::getCalib(dai::Pipeline& pipeline, int instanceNum, int width, i
         imuLocalTransform = rtabmap::Transform(0, 1, 0, 0.0374, 1, 0, 0, 0.00176, 0, 0, -1, 0);
     } else if(eeprom.boardName == "NG9097") {
         imuLocalTransform = rtabmap::Transform(0, 1, 0, 0.04, 1, 0, 0, 0.020265, 0, 0, -1, 0);
+    } else if(eeprom.boardName.rfind("BK3389C",0) == 0){
+        std::cout << "found the board " << eeprom.boardName << std::endl;
+        imuLocalTransform = rtabmap::Transform(-1.0, 0.0, 0.0, -0.059198,
+					0.0, -1.0, 0.0, -0.009289,
+					0.0, 0.0, 1.0, 0.0);
     } else {
         std::cout << "Unknown IMU local transform for " << eeprom.boardName << std::endl;
         stop();

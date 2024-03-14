@@ -42,7 +42,7 @@ class RerunStreamer : public dai::NodeCRTP<dai::ThreadedNode, RerunStreamer> {
     Input inputImg{true, *this, "inImg", Input::Type::SReceiver, false, 8, true, {{dai::DatatypeEnum::ImgFrame, true}}};
     void run() override {
         const auto rec = rerun::RecordingStream("rerun");
-        rec.spawn().exit_on_failure();
+        rec.connect().exit_on_failure();
         rec.log_timeless("world", rerun::ViewCoordinates::RDF);
 
         while(isRunning()) {
@@ -74,12 +74,14 @@ int main() {
 	// ULogger::setLevel(ULogger::kInfo);
     // Create pipeline
     dai::Pipeline pipeline;
-    int fps = 30;
+    int fps = 15;
     int width = 640;
     int height = 400;
     // Define sources and outputs
     auto left = pipeline.create<dai::node::ColorCamera>();
     auto right = pipeline.create<dai::node::ColorCamera>();
+    left->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1200_P);
+	right->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1200_P);
     auto stereo = pipeline.create<dai::node::StereoDepth>();
     auto imu = pipeline.create<dai::node::IMU>();
     auto featureTracker = pipeline.create<dai::node::FeatureTracker>();
@@ -102,10 +104,10 @@ int main() {
     featureTracker->initialConfig.featureMaintainer.minimumDistanceBetweenFeatures = 49.0;
     stereo->rectifiedLeft.link(featureTracker->inputImage);
     stereo->setAlphaScaling(0.0);
-    left->setIspScale(9, 20);
+    left->setVideoSize(640, 400);
     left->setCamera("left");
     left->setFps(fps);
-    right->setIspScale(9, 20);
+    right->setVideoSize(640, 400);
     right->setCamera("right");
     right->setFps(fps);
 	stereo->setExtendedDisparity(false);
@@ -124,8 +126,8 @@ int main() {
     // controlIn->setStreamName("control");
 
     // Linking
-    left->isp.link(stereo->left);
-    right->isp.link(stereo->right);
+    left->video.link(stereo->left);
+    right->video.link(stereo->right);
     featureTracker->passthroughInputImage.link(odom->inputRect);
     stereo->depth.link(odom->inputDepth);
     imu->out.link(odom->inputIMU);
