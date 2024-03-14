@@ -103,7 +103,7 @@ int main() {
     featureTracker->initialConfig.setMotionEstimator(false);
     featureTracker->initialConfig.featureMaintainer.minimumDistanceBetweenFeatures = 49.0;
     stereo->rectifiedLeft.link(featureTracker->inputImage);
-    stereo->setAlphaScaling(0.0);
+    //stereo->setAlphaScaling(0.0);
     left->setVideoSize(640, 400);
     left->setCamera("left");
     left->setFps(fps);
